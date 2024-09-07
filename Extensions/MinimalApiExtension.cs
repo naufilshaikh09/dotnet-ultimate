@@ -1,14 +1,9 @@
-using dotnet_ultimate.Exceptions;
 using dotnet_ultimate.Features.Products.Commands.Create;
 using dotnet_ultimate.Features.Products.Commands.Delete;
 using dotnet_ultimate.Features.Products.Commands.Update;
-using dotnet_ultimate.Features.Products.DTOs;
 using dotnet_ultimate.Features.Products.Notifications;
 using dotnet_ultimate.Features.Products.Queries.Get;
 using dotnet_ultimate.Features.Products.Queries.List;
-using dotnet_ultimate.Model;
-using dotnet_ultimate.Services;
-using FluentValidation;
 using MediatR;
 
 namespace dotnet_ultimate.Extensions;

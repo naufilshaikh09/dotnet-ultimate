@@ -22,6 +22,7 @@
 
     <ItemGroup>
       <_ContentIncludedByDefault Remove="Logs\log20240906.json" />
+      <_ContentIncludedByDefault Remove="Logs\log20240907.json" />
     </ItemGroup>
 
 </Project>

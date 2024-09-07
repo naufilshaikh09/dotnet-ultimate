@@ -1,6 +1,8 @@
+using System.Reflection;
 using dotnet_ultimate.Exceptions;
 using dotnet_ultimate.Extensions;
 using dotnet_ultimate.Model;
+using dotnet_ultimate.Persistence;
 using dotnet_ultimate.Services;
 using dotnet_ultimate.Validators;
 using FluentValidation;
@@ -24,7 +26,10 @@ try
     builder.Services.AddProblemDetails();
     builder.Services.ConfigureServices(builder.Configuration);
     builder.Services.AddValidatorsFromAssemblyContaining<UserRegistrationValidator>();
-
+    builder.Services.AddDbContext<AppDbContext>();
+    builder.Services.AddMediatR(config 
+        => config.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
+    
     var app = builder.Build();
 
     // Configure the HTTP request pipeline :
@@ -44,7 +49,7 @@ try
     // Custom middleware :
     // app.UseMiddleware<ErrorHandlerMiddleware>();
     // Minimal api :
-    // app.ConfigureMinimalApi();
+    app.ConfigureMinimalApi();
 
     app.Run();
 }

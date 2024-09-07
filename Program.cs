@@ -1,4 +1,8 @@
+using System.Net;
+using dotnet_ultimate.Exceptions;
+using dotnet_ultimate.Middleware;
 using dotnet_ultimate.Services;
+using Microsoft.AspNetCore.Diagnostics;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -8,9 +12,9 @@ Log.Logger = new LoggerConfiguration()
 try
 {
     Log.Information("Starting up");
-    
+
     var builder = WebApplication.CreateBuilder(args);
-    
+
     // Approach 1: Configuration via appSettings.json
     builder.Host.UseSerilog((context, loggerConfiguration) =>
     {
@@ -32,6 +36,9 @@ try
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 
+    builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+    builder.Services.AddProblemDetails();
+
     builder.Services.AddTransient<IDummyService, DummyService>();
 
     var app = builder.Build();
@@ -42,15 +49,35 @@ try
         app.UseSwagger();
         app.UseSwaggerUI();
     }
-    
+
     app.UseHttpsRedirection();
     app.UseAuthorization();
     app.MapControllers();
-    
-    // Minimal api
-    app.MapGet("/", (IDummyService svc) => svc.DoSomething());
-    
+
     app.UseSerilogRequestLogging();
+
+    // In-built exception middleware
+    // app.UseExceptionHandler(options =>
+    // {
+    //     options.Run(async context =>
+    //     {
+    //         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+    //         context.Response.ContentType = "application/json";
+    //         var exception = context.Features.Get<IExceptionHandlerFeature>();
+    //         if (exception != null)
+    //         {
+    //             var message = $"{exception.Error.Message}";
+    //             await context.Response.WriteAsync(message).ConfigureAwait(false);
+    //         }
+    //     });
+    // });
+
+    // app.UseMiddleware<ErrorHandlerMiddleware>();
+    app.UseExceptionHandler();
+
+    // Minimal api
+    // app.MapGet("/", (IDummyService svc) => svc.DoSomething());
+    app.MapGet("/", () => { throw new ProductNotFoundException(Guid.NewGuid()); });
 
     app.Run();
 }

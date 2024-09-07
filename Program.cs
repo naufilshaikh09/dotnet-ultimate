@@ -1,3 +1,5 @@
+using dotnet_ultimate.Exceptions;
+using dotnet_ultimate.Extensions;
 using dotnet_ultimate.Services;
 using Serilog;
 
@@ -8,32 +10,17 @@ Log.Logger = new LoggerConfiguration()
 try
 {
     Log.Information("Starting up");
-    
     var builder = WebApplication.CreateBuilder(args);
-    
-    // Approach 1: Configuration via appSettings.json
-    builder.Host.UseSerilog((context, loggerConfiguration) =>
-    {
-        loggerConfiguration.WriteTo.Console();
-        loggerConfiguration.ReadFrom.Configuration(context.Configuration);
-    });
-
-    // Approach 2: Configuration via Fluent API 
-    // builder.Host.UseSerilog((context, logger) =>
-    // {
-    //     logger.MinimumLevel.Information();
-    //     logger.WriteTo.Console();
-    // });
 
     // Add services to the container.
+    builder.Host.ConfigureSerilog();
     builder.Services.AddControllers();
-
-    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
-
-    builder.Services.AddTransient<IDummyService, DummyService>();
-
+    builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+    builder.Services.AddProblemDetails();
+    builder.Services.ConfigureServices(builder.Configuration);
+    
     var app = builder.Build();
 
     // Configure the HTTP request pipeline.
@@ -42,15 +29,22 @@ try
         app.UseSwagger();
         app.UseSwaggerUI();
     }
-    
+
     app.UseHttpsRedirection();
     app.UseAuthorization();
     app.MapControllers();
-    
-    // Minimal api
-    app.MapGet("/", (IDummyService svc) => svc.DoSomething());
-    
+
     app.UseSerilogRequestLogging();
+
+    // In-built exception middleware
+    // app.ConfigureExceptionHandler();
+
+    // app.UseMiddleware<ErrorHandlerMiddleware>();
+    app.UseExceptionHandler();
+
+    // Minimal api
+    // app.MapGet("/", (IDummyService svc) => svc.DoSomething());
+    // app.MapGet("/", () => { throw new ProductNotFoundException(Guid.NewGuid()); });
 
     app.Run();
 }

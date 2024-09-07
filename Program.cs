@@ -1,6 +1,9 @@
 using dotnet_ultimate.Exceptions;
 using dotnet_ultimate.Extensions;
+using dotnet_ultimate.Model;
 using dotnet_ultimate.Services;
+using dotnet_ultimate.Validators;
+using FluentValidation;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -12,7 +15,7 @@ try
     Log.Information("Starting up");
     var builder = WebApplication.CreateBuilder(args);
 
-    // Add services to the container.
+    // Add services to the container :
     builder.Host.ConfigureSerilog();
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
@@ -20,10 +23,11 @@ try
     builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
     builder.Services.AddProblemDetails();
     builder.Services.ConfigureServices(builder.Configuration);
-    
+    builder.Services.AddValidatorsFromAssemblyContaining<UserRegistrationValidator>();
+
     var app = builder.Build();
 
-    // Configure the HTTP request pipeline.
+    // Configure the HTTP request pipeline :
     if (app.Environment.IsDevelopment())
     {
         app.UseSwagger();
@@ -33,18 +37,14 @@ try
     app.UseHttpsRedirection();
     app.UseAuthorization();
     app.MapControllers();
-
     app.UseSerilogRequestLogging();
-
-    // In-built exception middleware
-    // app.ConfigureExceptionHandler();
-
-    // app.UseMiddleware<ErrorHandlerMiddleware>();
     app.UseExceptionHandler();
-
-    // Minimal api
-    // app.MapGet("/", (IDummyService svc) => svc.DoSomething());
-    // app.MapGet("/", () => { throw new ProductNotFoundException(Guid.NewGuid()); });
+    // Built-in exception middleware :
+    // app.ConfigureExceptionHandler();
+    // Custom middleware :
+    // app.UseMiddleware<ErrorHandlerMiddleware>();
+    // Minimal api :
+    // app.ConfigureMinimalApi();
 
     app.Run();
 }

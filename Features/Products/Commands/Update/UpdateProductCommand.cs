@@ -1,4 +1,3 @@
-using dotnet_ultimate.Features.Products.DTOs;
 using MediatR;
 
 namespace dotnet_ultimate.Features.Products.Commands.Update;

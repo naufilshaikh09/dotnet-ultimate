@@ -1,6 +1,3 @@
-using dotnet_ultimate.Domain;
-using dotnet_ultimate.Features.Products.Commands.Create;
-using dotnet_ultimate.Features.Products.DTOs;
 using dotnet_ultimate.Persistence;
 using MediatR;
 

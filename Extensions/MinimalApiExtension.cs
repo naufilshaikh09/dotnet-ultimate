@@ -3,6 +3,7 @@ using dotnet_ultimate.Features.Products.Commands.Create;
 using dotnet_ultimate.Features.Products.Commands.Delete;
 using dotnet_ultimate.Features.Products.Commands.Update;
 using dotnet_ultimate.Features.Products.DTOs;
+using dotnet_ultimate.Features.Products.Notifications;
 using dotnet_ultimate.Features.Products.Queries.Get;
 using dotnet_ultimate.Features.Products.Queries.List;
 using dotnet_ultimate.Model;
@@ -43,10 +44,11 @@ public static class MinimalApiExtension
             return Results.Ok(products);
         });
 
-        app.MapPost("/products", async (CreateProductCommand command, ISender mediatr) =>
+        app.MapPost("/products", async (CreateProductCommand command, IMediator mediatr) =>
         {
             var productId = await mediatr.Send(command);
             if (Guid.Empty == productId) return Results.BadRequest();
+            await mediatr.Publish(new ProductCreatedNotification(productId));
             return Results.Created($"/products/{productId}", new { id = productId });
         });
         

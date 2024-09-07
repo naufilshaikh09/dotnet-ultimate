@@ -11,9 +11,6 @@ public class GetProductQueryHandler(AppDbContext context) :
     {
         var product = await context.Products.FindAsync(request.Id);
         
-        if (product == null)
-            return null;
-        
-        return new ProductDto(product.Id, product.Name, product.Description, product.Price);
+        return product == null ? null : new ProductDto(product.Id, product.Name, product.Description, product.Price);
     }
 }

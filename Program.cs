@@ -50,6 +50,8 @@ try
     // Minimal api
     app.MapGet("/", (IDummyService svc) => svc.DoSomething());
     
+    app.UseSerilogRequestLogging();
+
     app.Run();
 }
 catch (Exception ex)

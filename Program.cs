@@ -25,6 +25,7 @@ try
     builder.Services.AddDbContext<AppDbContext>();
     builder.Services.ConfigureMediatR();
     builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+    builder.Services.AddMemoryCache();
     
     var app = builder.Build();
 

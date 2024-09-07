@@ -1,10 +1,7 @@
 using System.Reflection;
 using dotnet_ultimate.Exceptions;
 using dotnet_ultimate.Extensions;
-using dotnet_ultimate.Model;
 using dotnet_ultimate.Persistence;
-using dotnet_ultimate.Services;
-using dotnet_ultimate.Validators;
 using FluentValidation;
 using Serilog;
 
@@ -25,10 +22,9 @@ try
     builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
     builder.Services.AddProblemDetails();
     builder.Services.ConfigureServices(builder.Configuration);
-    builder.Services.AddValidatorsFromAssemblyContaining<UserRegistrationValidator>();
     builder.Services.AddDbContext<AppDbContext>();
-    builder.Services.AddMediatR(config 
-        => config.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
+    builder.Services.ConfigureMediatR();
+    builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
     
     var app = builder.Build();
 

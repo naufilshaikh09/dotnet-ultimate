@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using dotnet_ultimate.Features.Products.Commands.Create;
 using dotnet_ultimate.Features.Products.Commands.Delete;
 using dotnet_ultimate.Features.Products.Commands.Update;
@@ -12,7 +13,6 @@ public static class MinimalApiExtension
 {
     public static void ConfigureMinimalApi(this IEndpointRouteBuilder app)
     {
-        // app.MapGet("/", (IDummyService svc) => svc.DoSomething());
         // app.MapGet("/", () => { throw new ProductNotFoundException(Guid.NewGuid()); });
         // app.MapPost("/register", async (UserRegistrationRequest request, IValidator<UserRegistrationRequest> validator) =>
         // {
@@ -25,11 +25,10 @@ public static class MinimalApiExtension
         //     // _service.RegisterUser(request);
         //     return Results.Accepted();
         // });
-        
-        app.MapGet("/products/{id:guid}", async (Guid id, ISender mediatr) =>
+
+        app.MapGet("/products/{id:int}", async ([Required]int id, ISender mediatr) =>
         {
             var product = await mediatr.Send(new GetProductQuery(id));
-            if (product == null) return Results.NotFound();
             return Results.Ok(product);
         });
 
@@ -42,19 +41,18 @@ public static class MinimalApiExtension
         app.MapPost("/products", async (CreateProductCommand command, IMediator mediatr) =>
         {
             var productId = await mediatr.Send(command);
-            if (Guid.Empty == productId) return Results.BadRequest();
+            if (productId <= 0) return Results.BadRequest();
             await mediatr.Publish(new ProductCreatedNotification(productId));
             return Results.Created($"/products/{productId}", new { id = productId });
         });
-        
-        app.MapPut("/products/{id:guid}", async (Guid id, UpdateProductCommand command, ISender mediatr) =>
+
+        app.MapPut("/products/{id:int}", async (int id, UpdateProductCommand command, ISender mediatr) =>
         {
             var productId = await mediatr.Send(command);
-            if (productId is null) return Results.BadRequest();
-            return Results.Created($"/products/{productId}", new { id = productId });
+            return productId is null ? Results.BadRequest() : Results.Created($"/products/{productId}", new { id = (int)productId });
         });
-        
-        app.MapDelete("/products/{id:guid}", async (Guid id, ISender mediatr) =>
+
+        app.MapDelete("/products/{id:int}", async ([Required]int id, ISender mediatr) =>
         {
             await mediatr.Send(new DeleteProductCommand(id));
             return Results.NoContent();

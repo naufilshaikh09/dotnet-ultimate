@@ -7,11 +7,11 @@ using Microsoft.Extensions.Caching.Memory;
 namespace dotnet_ultimate.Features.Products.Commands.Create;
 
 public class CreateProductCommandHandler(AppDbContext context, IMemoryCache cache, ILogger<ProductDto> logger) 
-    : IRequestHandler<CreateProductCommand, Guid>
+    : IRequestHandler<CreateProductCommand, int>
 {
-    public async Task<Guid> Handle(CreateProductCommand command, CancellationToken cancellationToken)
+    public async Task<int> Handle(CreateProductCommand command, CancellationToken cancellationToken)
     {
-        var product = new Product(command.Name, command.Description, command.Price);
+        var product = new Product(0, command.Name, command.Description, command.Price);
         await context.Products.AddAsync(product);
         await context.SaveChangesAsync();
         

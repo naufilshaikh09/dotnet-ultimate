@@ -3,6 +3,7 @@ using dotnet_ultimate.Exceptions;
 using dotnet_ultimate.Extensions;
 using dotnet_ultimate.Persistence;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -21,8 +22,11 @@ try
     builder.Services.AddSwaggerGen();
     builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
     builder.Services.AddProblemDetails();
-    builder.Services.ConfigureServices(builder.Configuration);
-    builder.Services.AddDbContext<AppDbContext>();
+    // builder.Services.ConfigureServices(builder.Configuration);
+    builder.Services.AddDbContext<AppDbContext>(options =>
+    {
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+    });
     builder.Services.ConfigureMediatR();
     builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
     builder.Services.AddMemoryCache();

@@ -3,9 +3,9 @@ using MediatR;
 
 namespace dotnet_ultimate.Features.Products.Commands.Update;
 
-public class UpdateProductCommandHandler(AppDbContext context) : IRequestHandler<UpdateProductCommand, Guid?>
+public class UpdateProductCommandHandler(AppDbContext context) : IRequestHandler<UpdateProductCommand, int?>
 {
-    public async Task<Guid?> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
+    public async Task<int?> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
     {
         var product = await context.Products.FindAsync(request.Id);
         if (product == null) return null;
